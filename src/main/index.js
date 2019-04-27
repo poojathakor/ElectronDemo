@@ -2,23 +2,32 @@
 
 import { app, BrowserWindow } from 'electron'
 const { ipcMain } = require('electron')
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
+
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
+  ? `http://localhost:8080`
   : `file://${__dirname}/index.html`
 
 function createWindow () {
   /**
    * Initial window options
    */
+  win.webContents.executeJavaScript(`
+  const ipcRenderer = require('electron')
+	document.getElementById('drag').ondragstart = (event) => {
+		event.preventDefault()
+		ipcRenderer.send('ondragstart', 'D:/pooja/newVueElectron/my-project/src/renderer/components/LandingPage/logo.png')
+  }`)
+  
   ipcMain.on('ondragstart', (event, filePath) => {
     console.log('being dropped')
     event.sender.startDrag({
